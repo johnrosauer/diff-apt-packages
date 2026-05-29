@@ -1,0 +1,85 @@
+.TH DIFF-APT-PACKAGES 1 "May 2026" "diff-apt-packages" "User Commands"
+.SH NAME
+diff-apt-packages \- compare currently installed APT packages with default Ubuntu ones
+.SH SYNOPSIS
+.B diff-apt-packages.sh
+[\fB\-m\fR \fIMODE\fR]
+[\fB\-d\fR \fIPATH\fR]
+[\fB\-o\fR \fIPATH\fR]
+[\fB\-s\fR]
+[\fB\-r\fR]
+[\fB\-k\fR]
+[\fB\-q\fR]
+[\fB\-y\fR]
+[\fB\-h\fR]
+.SH DESCRIPTION
+.B diff-apt-packages.sh
+compares the set of packages currently installed on an Ubuntu system against the set of packages that come pre-installed by default for that release.
+.PP
+The tool determines the original package set by checking the following sources in order:
+.IP "1." 4
+A local manifest file or installer log specified with the \fB\-d\fR option.
+.IP "2." 4
+The system's local installer status log (\fI/var/log/installer/initial-status.gz\fR), if readable.
+.IP "3." 4
+The official Ubuntu releases mirror or cloud images directory, using the automatically detected or forced system mode (\fBdesktop\fR, \fBserver\fR, \fBwsl\fR, or \fBcloud\fR).
+.PP
+By default, the script compares the list ignoring architecture qualifiers (e.g. \fI:amd64\fR) and normalizes version numbers in package names (e.g. treating \fIlinux-headers-6.17.0-29\fR and \fIlinux-headers-7.0.0-15\fR as the same package) to provide an accurate difference list without transient noise. Exact version matching can be re-enabled using the \fB\-k\fR option.
+.SH OPTIONS
+.TP
+.BI \-m " MODE" ", \-\-mode " MODE
+Force the installation mode to use for downloading online manifests: \fBdesktop\fR, \fBserver\fR, \fBwsl\fR, \fBcloud\fR, or \fBauto\fR. Default is \fBauto\fR.
+.TP
+.BI \-d " PATH" ", \-\-default-file " PATH
+Specify a path to a local manifest file or an \fBinitial-status.gz\fR file instead of downloading.
+.TP
+.BI \-o " PATH" ", \-\-output-dir " PATH
+Save the parsed package lists and differences (\fIdefault-packages.txt\fR, \fIinstalled-packages.txt\fR, \fIadded-packages.txt\fR, and \fIremoved-packages.txt\fR) to the specified directory.
+.TP
+.B \-s\fR, \fB\-\-show-added
+Print the list of added packages to standard output.
+.TP
+.B \-r\fR, \fB\-\-show-removed
+Print the list of removed packages to standard output.
+.TP
+.B \-k\fR, \fB\-\-keep-versions
+Do not ignore version numbers in package names. This performs exact matching on names (e.g. treating compiler releases like \fIgcc-14\fR and \fIgcc-15\fR as distinct packages).
+.TP
+.B \-q\fR, \fB\-\-quiet
+Quiet mode. Suppress all OS information headers, download progress messages, and comparison summary tables. Ideal for pipes and scripts.
+.TP
+.B \-y\fR, \fB\-\-non-interactive
+Disable interactive prompt for listing details when run in a TTY.
+.TP
+.B \-h\fR, \fB\-\-help
+Show usage help summary and exit.
+.SH FILES
+.TP
+.I /var/log/installer/initial-status.gz
+The local Ubuntu installer log containing the pre-installed package list for this machine.
+.SH EXAMPLES
+Show package difference summary and prompt for detail listings:
+.PP
+.RS
+.B diff-apt-packages.sh
+.RE
+.PP
+Quietly list added packages and save them to a text file:
+.PP
+.RS
+.B diff-apt-packages.sh \-q \-s > added_packages.txt
+.RE
+.PP
+Audit package difference comparing exact package version names:
+.PP
+.RS
+.B diff-apt-packages.sh \-k
+.RE
+.PP
+Force wsl mode manifest download and output raw files to a directory:
+.PP
+.RS
+.B diff-apt-packages.sh \-m wsl \-o /tmp/wsl-audit
+.RE
+.SH AUTHORS
+Written by Antigravity.

@@ -1,0 +1,12 @@
+# Logs and temp files
+*.log
+*.tmp
+tmp/
+
+# Package lists and diff outputs
+*-packages.txt
+added_packages_list*
+installed_packages.txt
+default-packages.txt
+added-packages.txt
+removed-packages.txt
