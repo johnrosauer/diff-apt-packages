@@ -43,7 +43,7 @@ Options:
                            (Default: auto-detect)
   -d, --default-file PATH  Use a local manifest file or initial-status.gz instead of downloading
   -o, --output-dir PATH    Save raw package lists and differences to this directory
-  -s, --show-added         Print list of added packages to stdout
+  -a, --show-added         Print list of added packages to stdout
   -r, --show-removed       Print list of removed packages to stdout
   -k, --keep-versions      Do not ignore version numbers in package names (e.g. treat
                            linux-headers-6.17 and linux-headers-7.0 as different packages)
@@ -89,7 +89,7 @@ while [[ $# -gt 0 ]]; do
             OUTPUT_DIR="$2"
             shift 2
             ;;
-        -s|--show-added)
+        -a|--show-added)
             SHOW_ADDED=true
             shift 1
             ;;
