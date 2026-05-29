@@ -10,8 +10,8 @@ It helps system administrators and developers audit systems by identifying preci
   - Automatically queries the local installer database (`/var/log/installer/initial-status.gz`) for an exact record of what was pre-installed on this machine.
   - Gracefully falls back to downloading the official release/cloud manifest from Canonical mirrors based on your detected Ubuntu version, codename, architecture, and installation mode.
 - **Smart Mode Auto-Detection:**
-  - Auto-detects whether the machine is running a **Desktop** environment, a standard **Server**, a **WSL** (Windows Subsystem for Linux) instance, or a virtualized **Cloud Image** minimal system.
-- **Version-Insensitive Normalization:**
+  - Auto-detects whether the machine is running a **Desktop** environment, a standard **Server**, a **WSL** (Windows Subsystem for Linux) instance, or a virtualised **Cloud Image** minimal system.
+- **Version-Insensitive Normalisation:**
   - By default, ignores minor/patch version differences in package names (e.g. treats `linux-headers-6.17` and `linux-headers-7.0` as the same package) to prevent transient kernel update noise from bloating the audit results.
 - **Redirection-Friendly (Quiet Mode):**
   - Includes a quiet option (`-q`/`--quiet`) that suppresses all headers and download logs, printing only the raw package list to standard output—perfect for script pipes and redirects.
@@ -91,6 +91,6 @@ Options:
 
 ---
 
-## License
+## Licence
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT Licence - see the [LICENSE](LICENSE) file for details.
