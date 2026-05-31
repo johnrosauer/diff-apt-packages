@@ -17,6 +17,8 @@ It helps system administrators and developers audit systems by identifying preci
   - Includes a quiet option (`-q`/`--quiet`) that suppresses all headers and download logs, printing only the raw package list to standard output—perfect for script pipes and redirects.
 - **Interactive Console Explorer:**
   - Features an interactive menu to explore added and removed packages in columns (with terminal width auto-wrapping and long-line padding).
+- **Shell Auto-Completion:**
+  - Includes a Bash completion script to auto-complete options and arguments (such as modes and paths) at the command line.
 
 ---
 
