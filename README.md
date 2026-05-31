@@ -35,6 +35,16 @@ cd diff-apt-packages
 sudo make install
 ```
 
+Alternatively, you can build a standard Debian (`.deb`) package to install it via your system package manager:
+
+```bash
+# Build the .deb package
+make deb
+
+# Install the generated package
+sudo apt install ./diff-apt-packages_*.deb
+```
+
 To remove the installation:
 ```bash
 sudo make uninstall

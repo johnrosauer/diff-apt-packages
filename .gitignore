@@ -10,3 +10,6 @@ installed_packages.txt
 default-packages.txt
 added-packages.txt
 removed-packages.txt
+
+# Debian packages
+*.deb
