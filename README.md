@@ -8,6 +8,7 @@ It helps system administrators and developers audit systems by identifying preci
 
 - **Automated Manifest Resolution:**
   - Automatically locates and downloads the official release or cloud manifest from Canonical mirrors based on your detected Ubuntu version, codename, architecture, and installation mode.
+  - Caches downloaded manifests locally in `~/.cache/diff-apt-packages/` for 24 hours to avoid network delays, with automatic fallback to stale cache files in case of network timeouts or offline mode.
 - **Smart Mode Auto-Detection:**
   - Auto-detects whether the machine is running a **Desktop** environment, a standard **Server**, a **WSL** (Windows Subsystem for Linux) instance, or a virtualised **Cloud Image** minimal system.
 - **Version-Insensitive Normalisation:**

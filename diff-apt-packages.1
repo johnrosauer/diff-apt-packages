@@ -79,5 +79,8 @@ Force wsl mode manifest download and output raw files to a directory:
 .RS
 .B diff-apt-packages.sh \-m wsl \-o /tmp/wsl-audit
 .RE
+.SH FILES
+.I ~/.cache/diff-apt-packages/
+Directory containing cached online manifest files. Manifest files are cached for 24 hours to avoid redundant downloads.
 .SH AUTHORS
 Written by John Rosauer <john.rosauer@gmail.com> and Antigravity.

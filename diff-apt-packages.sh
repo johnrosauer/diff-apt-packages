@@ -297,28 +297,79 @@ fi
 
 # Download manifest if no source found yet
 if [ -z "$DEFAULT_SOURCE" ]; then
-    # Locate manifest URL
-    if [ "$QUIET" = false ]; then
-        echo -e "${BLUE}Locating online manifest file...${NC}" >&2
+    # Determine local cache path (respects XDG Base Directory Specification)
+    CACHE_DIR=""
+    if [ -n "${XDG_CACHE_HOME:-}" ]; then
+        CACHE_DIR="$XDG_CACHE_HOME/diff-apt-packages"
+    elif [ -n "${HOME:-}" ]; then
+        CACHE_DIR="$HOME/.cache/diff-apt-packages"
+    else
+        CACHE_DIR="/tmp/diff-apt-packages-cache"
     fi
-    MANIFEST_URL=$(find_online_manifest_url "$VERSION" "$CODENAME" "$DETECTED_MODE" "$ARCH")
+    
+    # Construct standard cache filename based on release metadata (e.g., resolute-desktop-amd64.manifest)
+    CACHE_FILE="${CACHE_DIR}/${CODENAME}-${DETECTED_MODE}-${ARCH}.manifest"
+    
+    USE_CACHE=false
+    if [ -f "$CACHE_FILE" ]; then
+        # Check if the cache is older than 24 hours (1440 minutes)
+        if [ -z "$(find "$CACHE_FILE" -mmin +1440 2>/dev/null)" ]; then
+            USE_CACHE=true
+        fi
+    fi
 
-    if [ -z "$MANIFEST_URL" ]; then
-        echo -e "${RED}Error: Could not locate a default manifest file for Ubuntu $VERSION ($CODENAME) / $DETECTED_MODE / $ARCH.${NC}" >&2
-        echo "Please specify a manifest manually using the -d/--default-file option." >&2
-        exit 1
-    fi
+    if [ "$USE_CACHE" = true ]; then
+        if [ "$QUIET" = false ]; then
+            echo -e "${BLUE}Using cached manifest:${NC} ${BOLD}$CACHE_FILE${NC}" >&2
+        fi
+        cp "$CACHE_FILE" "${TMP_DIR}/manifest.raw"
+        DEFAULT_SOURCE="Cached online manifest ($CACHE_FILE)"
+    else
+        # Locate manifest URL (only if cache is missing/expired)
+        if [ "$QUIET" = false ]; then
+            echo -e "${BLUE}Locating online manifest file...${NC}" >&2
+        fi
+        MANIFEST_URL=$(find_online_manifest_url "$VERSION" "$CODENAME" "$DETECTED_MODE" "$ARCH")
 
-    if [ "$QUIET" = false ]; then
-        echo -e "${BLUE}Downloading manifest:${NC} ${BOLD}$MANIFEST_URL${NC}" >&2
-    fi
-    if ! curl -sfL --max-time 30 "$MANIFEST_URL" > "${TMP_DIR}/manifest.raw"; then
-        echo -e "${RED}Error: Failed to download manifest from $MANIFEST_URL${NC}" >&2
-        exit 1
+        if [ -z "$MANIFEST_URL" ]; then
+            # If search fails, check if we have a stale cache file to fall back to
+            if [ -f "$CACHE_FILE" ]; then
+                if [ "$QUIET" = false ]; then
+                    echo -e "${YELLOW}Warning: Could not locate online manifest URL. Falling back to cached manifest.${NC}" >&2
+                fi
+                cp "$CACHE_FILE" "${TMP_DIR}/manifest.raw"
+                DEFAULT_SOURCE="Cached online manifest ($CACHE_FILE)"
+            else
+                echo -e "${RED}Error: Could not locate a default manifest file for Ubuntu $VERSION ($CODENAME) / $DETECTED_MODE / $ARCH.${NC}" >&2
+                echo "Please specify a manifest manually using the -d/--default-file option." >&2
+                exit 1
+            fi
+        else
+            if [ "$QUIET" = false ]; then
+                echo -e "${BLUE}Downloading manifest:${NC} ${BOLD}$MANIFEST_URL${NC}" >&2
+            fi
+            if ! curl -sfL --max-time 30 "$MANIFEST_URL" > "${TMP_DIR}/manifest.raw"; then
+                # If download fails, check if we have a stale cache file to fall back to
+                if [ -f "$CACHE_FILE" ]; then
+                    if [ "$QUIET" = false ]; then
+                        echo -e "${YELLOW}Warning: Download failed. Falling back to cached manifest.${NC}" >&2
+                    fi
+                    cp "$CACHE_FILE" "${TMP_DIR}/manifest.raw"
+                    DEFAULT_SOURCE="Cached online manifest ($CACHE_FILE)"
+                else
+                    echo -e "${RED}Error: Failed to download manifest from $MANIFEST_URL${NC}" >&2
+                    exit 1
+                fi
+            else
+                # Save downloaded manifest to cache
+                mkdir -p "$CACHE_DIR"
+                cp "${TMP_DIR}/manifest.raw" "$CACHE_FILE"
+                DEFAULT_SOURCE="Online manifest ($MANIFEST_URL)"
+            fi
+        fi
     fi
 
     tr -d '\r' < "${TMP_DIR}/manifest.raw" | awk '{print $1}' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
-    DEFAULT_SOURCE="Online manifest ($MANIFEST_URL)"
 fi
 
 # Step 3: Extract current packages
