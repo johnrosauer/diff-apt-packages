@@ -6,6 +6,7 @@
 # Reads local installer log if available, or downloads official manifests from Ubuntu servers.
 #
 # Created: 2026-05-29
+# Authors: John Rosauer <john.rosauer@gmail.com> and Antigravity
 #
 
 # Exit on error, undefined vars, or pipeline failures
