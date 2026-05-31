@@ -88,6 +88,7 @@ Options:
                            linux-headers-6.17 and linux-headers-7.0 as different packages)
   -q, --quiet              Suppress all status messages and header outputs
   -y, --non-interactive    Run in non-interactive mode (auto-detect everything, no prompts)
+  -v, --version            Print script version and exit
   -h, --help               Show help message and exit
 ```
 
