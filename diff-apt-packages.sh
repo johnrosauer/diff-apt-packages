@@ -288,9 +288,9 @@ if [ -n "$LOCAL_MANIFEST" ]; then
     
     # Parse local manifest file (supports gzipped files)
     if [[ "$LOCAL_MANIFEST" =~ \.gz$ ]]; then
-        gzip -dc "$LOCAL_MANIFEST" | awk '{print $1}' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
+        gzip -dc "$LOCAL_MANIFEST" | tr -d '\r' | awk '{print $1}' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
     else
-        awk '{print $1}' "$LOCAL_MANIFEST" | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
+        tr -d '\r' < "$LOCAL_MANIFEST" | awk '{print $1}' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
     fi
     DEFAULT_SOURCE="Local file: $LOCAL_MANIFEST"
 fi
@@ -317,13 +317,13 @@ if [ -z "$DEFAULT_SOURCE" ]; then
         exit 1
     fi
 
-    awk '{print $1}' "${TMP_DIR}/manifest.raw" | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
+    tr -d '\r' < "${TMP_DIR}/manifest.raw" | awk '{print $1}' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
     DEFAULT_SOURCE="Online manifest ($MANIFEST_URL)"
 fi
 
 # Step 3: Extract current packages
 CURRENT_LIST_FILE="${TMP_DIR}/current.txt"
-dpkg-query -W -f='${Package}\n' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$CURRENT_LIST_FILE"
+dpkg-query -W -f='${db:Status-Status} ${Package}\n' | tr -d '\r' | grep -vE '^(not-installed|config-files) ' | cut -d' ' -f2 | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$CURRENT_LIST_FILE"
 
 # Step 4: Compare lists
 ADDED_FILE="${TMP_DIR}/added.txt"
@@ -343,16 +343,19 @@ else
         local src="$1"
         local dest_mapped="$2"
         local dest_names="$3"
+        local suffix
+        suffix=$(basename "$src")
+        local norm_tmp="${TMP_DIR}/norm_${suffix}.txt"
         
         # Replace versions using sed
-        sed -E '
+        tr -d '\r' < "$src" | sed -E '
             s/-[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-generic\b/-VERSION-generic/g;
             s/-[0-9]+\.[0-9]+\.[0-9]+-[0-9]+\b/-VERSION/g;
             s/-[0-9]+(\.[0-9]+)?-(dev|generic|common|base|doc|docs|dbg|utils|libs)\b/-VERSION-\2/g;
             s/-[0-9]+(\.[0-9]+)?$/-VERSION/g
-        ' "$src" > "${TMP_DIR}/norm.txt"
+        ' > "$norm_tmp"
         
-        paste -d' ' "${TMP_DIR}/norm.txt" "$src" | LC_ALL=C sort -k1,1 -u > "$dest_mapped"
+        paste -d' ' "$norm_tmp" "$src" | LC_ALL=C sort -k1,1 > "$dest_mapped"
         awk '{print $1}' "$dest_mapped" | LC_ALL=C sort -u > "$dest_names"
     }
     
