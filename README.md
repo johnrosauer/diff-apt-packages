@@ -105,9 +105,3 @@ Options:
 
 This project is licensed under the MIT Licence - see the [LICENSE](LICENSE) file for details.
 
----
-
-## Authors
-
-    - **John Rosauer** - *Main Author* - [john.rosauer@gmail.com](mailto:john.rosauer@gmail.com)
-    - **Antigravity** - *Co-Author*
