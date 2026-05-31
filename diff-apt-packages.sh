@@ -31,6 +31,12 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Version resolution with build-time substitution and runtime Git fallback
+SCRIPT_VERSION="@VERSION@"
+if [ "$SCRIPT_VERSION" = "@VERSION@" ]; then
+    SCRIPT_VERSION=$(git -C "$(dirname "${BASH_SOURCE[0]}")" describe --tags --always --dirty 2>/dev/null || echo "dev")
+fi
+
 # Print usage info
 usage() {
     cat << EOF
@@ -49,7 +55,8 @@ Options:
                            linux-headers-6.17 and linux-headers-7.0 as different packages)
   -q, --quiet              Suppress all status messages and header outputs
   -y, --non-interactive    Run in non-interactive mode (auto-detect everything, no prompts)
-  -h, --help               Show this help message and exit
+  -v, --version            Print script version and exit
+  -h, --help               Show help message and exit
 
 Description:
   This script compares packages installed on the system against the original set
@@ -108,6 +115,10 @@ while [[ $# -gt 0 ]]; do
         -y|--non-interactive)
             NON_INTERACTIVE=true
             shift 1
+            ;;
+        -v|--version)
+            echo "diff-apt-packages version $SCRIPT_VERSION"
+            exit 0
             ;;
         -h|--help)
             usage

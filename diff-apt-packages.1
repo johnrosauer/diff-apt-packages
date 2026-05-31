@@ -1,4 +1,4 @@
-.TH DIFF-APT-PACKAGES 1 "May 2026" "diff-apt-packages" "User Commands"
+.TH DIFF-APT-PACKAGES 1 "May 2026" "diff-apt-packages @VERSION@" "User Commands"
 .SH NAME
 diff-apt-packages \- compare currently installed APT packages with default Ubuntu ones
 .SH SYNOPSIS
@@ -11,6 +11,7 @@ diff-apt-packages \- compare currently installed APT packages with default Ubunt
 [\fB\-k\fR]
 [\fB\-q\fR]
 [\fB\-y\fR]
+[\fB\-v\fR]
 [\fB\-h\fR]
 .SH DESCRIPTION
 .B diff-apt-packages.sh
@@ -50,6 +51,9 @@ Quiet mode. Suppress all OS information headers, download progress messages, and
 .TP
 .B \-y\fR, \fB\-\-non-interactive
 Disable interactive prompt for listing details when run in a TTY.
+.TP
+.B \-v\fR, \fB\-\-version
+Print version and exit.
 .TP
 .B \-h\fR, \fB\-\-help
 Show usage help summary and exit.

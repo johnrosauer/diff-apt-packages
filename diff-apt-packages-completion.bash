@@ -1,4 +1,4 @@
-# bash completion for diff-apt-packages.sh
+# bash completion for diff-apt-packages.sh version @VERSION@
 
 _diff_apt_packages() {
     local cur prev opts mode_opts
@@ -6,7 +6,7 @@ _diff_apt_packages() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     
-    opts="-m --mode -d --default-file -a --show-added -r --show-removed -k --keep-versions -q --quiet -y --non-interactive -h --help"
+    opts="-m --mode -d --default-file -a --show-added -r --show-removed -k --keep-versions -q --quiet -y --non-interactive -v --version -h --help"
     mode_opts="desktop server wsl cloud auto"
     
     case "$prev" in
