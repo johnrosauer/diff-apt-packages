@@ -48,7 +48,7 @@ Compare installed APT packages against the default ones for this Ubuntu release.
 Options:
   -m, --mode MODE          Force installation mode: desktop, server, wsl, cloud, auto
                            (Default: auto-detect)
-  -d, --default-file PATH  Use a local manifest file or initial-status.gz instead of downloading
+  -d, --default-file PATH  Use a local manifest file instead of downloading
   -o, --output-dir PATH    Save raw package lists and differences to this directory
   -a, --show-added         Print list of added packages to stdout
   -r, --show-removed       Print list of removed packages to stdout
@@ -63,10 +63,8 @@ Description:
   This script compares packages installed on the system against the original set
   of packages that come with the corresponding Ubuntu installation.
   
-  It will automatically check if '/var/log/installer/initial-status.gz' is readable,
-  which provides the exact pre-installed package list for this specific machine.
-  If not readable (due to permissions or absent logs), it will detect the Ubuntu
-  codename, fetch the official manifests from Ubuntu mirrors, auto-detect the installation
+  By default, it will detect the Ubuntu codename, fetch the official manifest
+  from the Ubuntu releases or cloud-images servers, auto-detect the installation
   flavor (Desktop, Server, WSL, or Cloud Image), and compute the diff.
 EOF
     exit 0
@@ -257,8 +255,6 @@ ARCH=$(dpkg --print-architecture)
 DETECTED_MODE=""
 if [ -n "$LOCAL_MANIFEST" ]; then
     SELECTED_MODE="local file ($LOCAL_MANIFEST)"
-elif [ -r "/var/log/installer/initial-status.gz" ]; then
-    SELECTED_MODE="installer log (/var/log/installer/initial-status.gz)"
 else
     if [ "$MODE" = "auto" ]; then
         DETECTED_MODE=$(detect_environment)
@@ -290,27 +286,13 @@ if [ -n "$LOCAL_MANIFEST" ]; then
         exit 1
     fi
     
-    if [[ "$LOCAL_MANIFEST" =~ initial-status ]]; then
-        # Parse initial-status format
-        if [[ "$LOCAL_MANIFEST" =~ \.gz$ ]]; then
-            gzip -dc "$LOCAL_MANIFEST" | sed -n 's/^Package: //p' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
-        else
-            grep '^Package: ' "$LOCAL_MANIFEST" | sed 's/^Package: //' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
-        fi
+    # Parse local manifest file (supports gzipped files)
+    if [[ "$LOCAL_MANIFEST" =~ \.gz$ ]]; then
+        gzip -dc "$LOCAL_MANIFEST" | awk '{print $1}' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
     else
-        # Assume manifest format
         awk '{print $1}' "$LOCAL_MANIFEST" | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
     fi
     DEFAULT_SOURCE="Local file: $LOCAL_MANIFEST"
-fi
-
-# Try initial-status.gz if no local file specified and it's readable
-if [ -z "$DEFAULT_SOURCE" ]; then
-    INSTALLER_LOG="/var/log/installer/initial-status.gz"
-    if [ -r "$INSTALLER_LOG" ]; then
-        gzip -dc "$INSTALLER_LOG" | sed -n 's/^Package: //p' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
-        DEFAULT_SOURCE="Installer log ($INSTALLER_LOG)"
-    fi
 fi
 
 # Download manifest if no source found yet

@@ -7,8 +7,7 @@ It helps system administrators and developers audit systems by identifying preci
 ## Features
 
 - **Automated Manifest Resolution:**
-  - Automatically queries the local installer database (`/var/log/installer/initial-status.gz`) for an exact record of what was pre-installed on this machine.
-  - Gracefully falls back to downloading the official release/cloud manifest from Canonical mirrors based on your detected Ubuntu version, codename, architecture, and installation mode.
+  - Automatically locates and downloads the official release or cloud manifest from Canonical mirrors based on your detected Ubuntu version, codename, architecture, and installation mode.
 - **Smart Mode Auto-Detection:**
   - Auto-detects whether the machine is running a **Desktop** environment, a standard **Server**, a **WSL** (Windows Subsystem for Linux) instance, or a virtualised **Cloud Image** minimal system.
 - **Version-Insensitive Normalisation:**
@@ -73,7 +72,7 @@ diff-apt-packages -k
 ```
 
 ### 4. Audit a Manifest Locally
-Compare currently installed packages against a specific local manifest file or `initial-status.gz` backup:
+Compare currently installed packages against a specific local manifest file backup:
 ```bash
 diff-apt-packages -d /path/to/backup-manifest.manifest
 ```
@@ -90,7 +89,7 @@ Compare installed APT packages against the default ones for this Ubuntu release.
 Options:
   -m, --mode MODE          Force installation mode: desktop, server, wsl, cloud, auto
                            (Default: auto-detect)
-  -d, --default-file PATH  Use a local manifest file or initial-status.gz instead of downloading
+  -d, --default-file PATH  Use a local manifest file instead of downloading
   -o, --output-dir PATH    Save raw package lists and differences to this directory
   -a, --show-added         Print list of added packages to stdout
   -r, --show-removed       Print list of removed packages to stdout
