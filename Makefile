@@ -13,8 +13,8 @@ install:
 	sed "s/@VERSION@/$(VERSION)/g" diff-apt-packages.sh > $(DESTDIR)$(BINDIR)/diff-apt-packages
 	chmod 0755 $(DESTDIR)$(BINDIR)/diff-apt-packages
 	install -d $(DESTDIR)$(MANDIR)
-	sed "s/@VERSION@/$(VERSION)/g" diff-apt-packages.1 > $(DESTDIR)$(MANDIR)/diff-apt-packages.1
-	chmod 0644 $(DESTDIR)$(MANDIR)/diff-apt-packages.1
+	sed "s/@VERSION@/$(VERSION)/g" diff-apt-packages.1 | gzip -9 > $(DESTDIR)$(MANDIR)/diff-apt-packages.1.gz
+	chmod 0644 $(DESTDIR)$(MANDIR)/diff-apt-packages.1.gz
 	install -d $(DESTDIR)$(BASHCOMPDIR)
 	sed "s/@VERSION@/$(VERSION)/g" diff-apt-packages-completion.bash > $(DESTDIR)$(BASHCOMPDIR)/diff-apt-packages
 	chmod 0644 $(DESTDIR)$(BASHCOMPDIR)/diff-apt-packages
@@ -22,6 +22,7 @@ install:
 uninstall:
 	rm -f $(DESTDIR)$(BINDIR)/diff-apt-packages
 	rm -f $(DESTDIR)$(MANDIR)/diff-apt-packages.1
+	rm -f $(DESTDIR)$(MANDIR)/diff-apt-packages.1.gz
 	rm -f $(DESTDIR)$(BASHCOMPDIR)/diff-apt-packages
 
 deb:
