@@ -34,7 +34,7 @@ trap cleanup EXIT
 
 # Version resolution with build-time substitution and runtime Git fallback
 SCRIPT_VERSION="@VERSION@"
-if [ "$SCRIPT_VERSION" = "@VERSION@" ]; then
+if [ "$SCRIPT_VERSION" = "@"VERSION"@" ]; then
     SCRIPT_VERSION=$(git -C "$(dirname "${BASH_SOURCE[0]}")" describe --tags --always --dirty 2>/dev/null || echo "dev")
 fi
 
