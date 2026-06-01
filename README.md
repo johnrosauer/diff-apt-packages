@@ -16,7 +16,7 @@ It helps system administrators and developers audit systems by identifying preci
 - **Redirection-Friendly (Quiet Mode):**
   - Includes a quiet option (`-q`/`--quiet`) that suppresses all headers and download logs, printing only the raw package list to standard output—perfect for script pipes and redirects.
 - **Interactive Console Explorer:**
-  - Features an interactive menu to explore added and removed packages in columns (with terminal width auto-wrapping and long-line padding).
+  - Features an interactive menu to explore added and removed packages in columns (with terminal width auto-wrapping, customisable column widths via `-w`/`--width`, and long-line padding).
 - **Shell Auto-Completion:**
   - Includes a Bash completion script to auto-complete options and arguments (such as modes and paths) at the command line.
 
@@ -78,6 +78,12 @@ Compare currently installed packages against a specific local manifest file back
 diff-apt-packages -d /path/to/backup-manifest.manifest
 ```
 
+### 5. Customise Column Width
+Adjust the column width of the interactive explorer layout to suit your terminal or to prevent package names from being truncated:
+```bash
+diff-apt-packages -w 50
+```
+
 ---
 
 ## CLI Options
@@ -92,6 +98,7 @@ Options:
                            (Default: auto-detect)
   -d, --default-file PATH  Use a local manifest file instead of downloading
   -o, --output-dir PATH    Save raw package lists and differences to this directory
+  -w, --width WIDTH        Column width for interactive layout (Default: 35)
   -a, --show-added         Print list of added packages to stdout
   -r, --show-removed       Print list of removed packages to stdout
   -k, --keep-versions      Do not ignore version numbers in package names (e.g. treat

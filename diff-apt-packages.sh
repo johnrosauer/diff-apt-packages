@@ -50,6 +50,7 @@ Options:
                            (Default: auto-detect)
   -d, --default-file PATH  Use a local manifest file instead of downloading
   -o, --output-dir PATH    Save raw package lists and differences to this directory
+  -w, --width WIDTH        Column width for interactive layout (Default: 35)
   -a, --show-added         Print list of added packages to stdout
   -r, --show-removed       Print list of removed packages to stdout
   -k, --keep-versions      Do not ignore version numbers in package names (e.g. treat
@@ -74,6 +75,7 @@ EOF
 MODE="auto"
 LOCAL_MANIFEST=""
 OUTPUT_DIR=""
+COLUMN_WIDTH=35
 SHOW_ADDED=false
 SHOW_REMOVED=false
 KEEP_VERSIONS=false
@@ -93,6 +95,14 @@ while [[ $# -gt 0 ]]; do
             ;;
         -o|--output-dir)
             OUTPUT_DIR="$2"
+            shift 2
+            ;;
+        -w|--width)
+            COLUMN_WIDTH="$2"
+            if ! [[ "$COLUMN_WIDTH" =~ ^[0-9]+$ ]] || [ "$COLUMN_WIDTH" -lt 5 ]; then
+                echo -e "${RED}Error: Width must be an integer of at least 5.${NC}" >&2
+                exit 1
+            fi
             shift 2
             ;;
         -a|--show-added)
@@ -475,7 +485,7 @@ print_columnated() {
     # If the file has entries, format it in columns only if stdout is a TTY (terminal)
     if [ -s "$file" ]; then
         if [ -t 1 ]; then
-            awk '{ if (length($0) > 35) print substr($0, 1, 32) "..."; else print $0 }' "$file" | column || cat "$file"
+            awk -v w="$COLUMN_WIDTH" '{ if (length($0) > w) print substr($0, 1, w - 3) "..."; else print $0 }' "$file" | column || cat "$file"
         else
             cat "$file"
         fi

@@ -6,6 +6,7 @@ diff-apt-packages \- compare currently installed APT packages with default Ubunt
 [\fB\-m\fR \fIMODE\fR]
 [\fB\-d\fR \fIPATH\fR]
 [\fB\-o\fR \fIPATH\fR]
+[\fB\-w\fR \fIWIDTH\fR]
 [\fB\-a\fR]
 [\fB\-r\fR]
 [\fB\-k\fR]
@@ -34,6 +35,9 @@ Specify a path to a local manifest file instead of downloading.
 .TP
 .BI \-o " PATH" ", \-\-output-dir " PATH
 Save the parsed package lists and differences (\fIdefault-packages.txt\fR, \fIinstalled-packages.txt\fR, \fIadded-packages.txt\fR, and \fIremoved-packages.txt\fR) to the specified directory.
+.TP
+.BI \-w " WIDTH" ", \-\-width " WIDTH
+Set the column width for truncation in the interactive console layout. Must be an integer of at least 5. Default is 35.
 .TP
 .B \-a\fR, \fB\-\-show-added
 Print the list of added packages to standard output.

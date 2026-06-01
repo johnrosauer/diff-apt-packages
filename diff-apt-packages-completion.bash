@@ -6,7 +6,7 @@ _diff_apt_packages() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     
-    opts="-m --mode -d --default-file -a --show-added -r --show-removed -k --keep-versions -q --quiet -y --non-interactive -v --version -h --help"
+    opts="-m --mode -d --default-file -o --output-dir -w --width -a --show-added -r --show-removed -k --keep-versions -q --quiet -y --non-interactive -v --version -h --help"
     mode_opts="desktop server wsl cloud auto"
     
     case "$prev" in
@@ -22,6 +22,10 @@ _diff_apt_packages() {
         -o|--output-dir)
             # Complete directories only
             _filedir -d
+            return 0
+            ;;
+        -w|--width)
+            # Expose no completion as it expects an integer width
             return 0
             ;;
     esac
