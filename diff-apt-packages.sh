@@ -126,7 +126,7 @@ while [[ $# -gt 0 ]]; do
             shift 1
             ;;
         -v|--version)
-            echo "diff-apt-packages version $SCRIPT_VERSION"
+            echo "diff-apt-packages $SCRIPT_VERSION"
             exit 0
             ;;
         -h|--help)
