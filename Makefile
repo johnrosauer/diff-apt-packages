@@ -6,7 +6,11 @@ BASHCOMPDIR = /etc/bash_completion.d
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 DEB_VERSION = $(shell echo "$(VERSION)" | sed -E 's/^v//; s/^([^0-9])/0.0.0-\1/')
 
-.PHONY: install uninstall deb
+.PHONY: install uninstall deb test
+
+test:
+	chmod +x tests/run-tests.sh
+	bash tests/run-tests.sh
 
 install:
 	install -d $(DESTDIR)$(BINDIR)
