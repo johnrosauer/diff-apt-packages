@@ -47,6 +47,28 @@ c_join() {
     LC_ALL=C command join "$@"
 }
 
+# Helper for validating option arguments
+require_arg() {
+    if [[ $2 -lt 2 ]]; then
+        echo -e "${RED}Error: Option '$1' requires an argument.${NC}" >&2
+        exit 1
+    fi
+}
+
+# Helper to fall back to a stale cache file if offline manifest resolution/download fails
+fallback_to_cache() {
+    local reason="$1"
+    if [ -f "$CACHE_FILE" ]; then
+        if [ "$QUIET" = false ]; then
+            echo -e "${YELLOW}Warning: ${reason}. Falling back to cached manifest.${NC}" >&2
+        fi
+        cp "$CACHE_FILE" "${TMP_DIR}/manifest.raw"
+        DEFAULT_SOURCE="Cached online manifest ($CACHE_FILE)"
+        return 0
+    fi
+    return 1
+}
+
 # Version resolution with build-time substitution and runtime Git fallback
 SCRIPT_VERSION="@VERSION@"
 if [ "$SCRIPT_VERSION" = "@"VERSION"@" ]; then
@@ -106,34 +128,22 @@ NON_INTERACTIVE=false
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -m|--mode)
-            if [[ $# -lt 2 ]]; then
-                echo -e "${RED}Error: Option '$1' requires an argument.${NC}" >&2
-                exit 1
-            fi
+            require_arg "$1" "$#"
             MODE="$2"
             shift 2
             ;;
         -d|--default-file)
-            if [[ $# -lt 2 ]]; then
-                echo -e "${RED}Error: Option '$1' requires an argument.${NC}" >&2
-                exit 1
-            fi
+            require_arg "$1" "$#"
             LOCAL_MANIFEST="$2"
             shift 2
             ;;
         -o|--output-dir)
-            if [[ $# -lt 2 ]]; then
-                echo -e "${RED}Error: Option '$1' requires an argument.${NC}" >&2
-                exit 1
-            fi
+            require_arg "$1" "$#"
             OUTPUT_DIR="$2"
             shift 2
             ;;
         -w|--width)
-            if [[ $# -lt 2 ]]; then
-                echo -e "${RED}Error: Option '$1' requires an argument.${NC}" >&2
-                exit 1
-            fi
+            require_arg "$1" "$#"
             COLUMN_WIDTH="$2"
             if ! [[ "$COLUMN_WIDTH" =~ ^[0-9]+$ ]] || [ "$COLUMN_WIDTH" -lt 5 ]; then
                 echo -e "${RED}Error: Width must be an integer of at least 5.${NC}" >&2
@@ -391,14 +401,7 @@ if [ -z "$DEFAULT_SOURCE" ]; then
         MANIFEST_URL=$(find_online_manifest_url "$VERSION" "$CODENAME" "$DETECTED_MODE" "$ARCH")
 
         if [ -z "$MANIFEST_URL" ]; then
-            # If search fails, check if we have a stale cache file to fall back to
-            if [ -f "$CACHE_FILE" ]; then
-                if [ "$QUIET" = false ]; then
-                    echo -e "${YELLOW}Warning: Could not locate online manifest URL. Falling back to cached manifest.${NC}" >&2
-                fi
-                cp "$CACHE_FILE" "${TMP_DIR}/manifest.raw"
-                DEFAULT_SOURCE="Cached online manifest ($CACHE_FILE)"
-            else
+            if ! fallback_to_cache "Could not locate online manifest URL"; then
                 echo -e "${RED}Error: Could not locate a default manifest file for Ubuntu $VERSION ($CODENAME) / $DETECTED_MODE / $ARCH.${NC}" >&2
                 echo "Please specify a manifest manually using the -d/--default-file option." >&2
                 exit 1
@@ -408,14 +411,7 @@ if [ -z "$DEFAULT_SOURCE" ]; then
                 echo -e "${BLUE}Downloading manifest:${NC} ${BOLD}$MANIFEST_URL${NC}" >&2
             fi
             if ! curl -sfL --max-time 30 "$MANIFEST_URL" > "${TMP_DIR}/manifest.raw"; then
-                # If download fails, check if we have a stale cache file to fall back to
-                if [ -f "$CACHE_FILE" ]; then
-                    if [ "$QUIET" = false ]; then
-                        echo -e "${YELLOW}Warning: Download failed. Falling back to cached manifest.${NC}" >&2
-                    fi
-                    cp "$CACHE_FILE" "${TMP_DIR}/manifest.raw"
-                    DEFAULT_SOURCE="Cached online manifest ($CACHE_FILE)"
-                else
+                if ! fallback_to_cache "Download failed"; then
                     echo -e "${RED}Error: Failed to download manifest from $MANIFEST_URL${NC}" >&2
                     exit 1
                 fi
@@ -543,25 +539,30 @@ print_columnated() {
 
 # Interactive review
 if [ "$NON_INTERACTIVE" = false ] && [ -t 0 ]; then
+    show_added() {
+        echo -e "\n${GREEN}--- Added Packages ($NUM_ADDED) ---${NC}"
+        print_columnated "$ADDED_FILE"
+    }
+    show_removed() {
+        echo -e "\n${RED}--- Removed Packages ($NUM_REMOVED) ---${NC}"
+        print_columnated "$REMOVED_FILE"
+    }
+
     while true; do
         echo -n -e "Would you like to list the details? [a]dded, [r]emoved, [b]oth, or [q]uit: "
         read -r choice
         case "$choice" in
             a|added)
-                echo -e "\n${GREEN}--- Added Packages ($NUM_ADDED) ---${NC}"
-                print_columnated "$ADDED_FILE"
+                show_added
                 echo ""
                 ;;
             r|removed)
-                echo -e "\n${RED}--- Removed Packages ($NUM_REMOVED) ---${NC}"
-                print_columnated "$REMOVED_FILE"
+                show_removed
                 echo ""
                 ;;
             b|both)
-                echo -e "\n${GREEN}--- Added Packages ($NUM_ADDED) ---${NC}"
-                print_columnated "$ADDED_FILE"
-                echo -e "\n${RED}--- Removed Packages ($NUM_REMOVED) ---${NC}"
-                print_columnated "$REMOVED_FILE"
+                show_added
+                show_removed
                 echo ""
                 ;;
             q|quit|exit)
