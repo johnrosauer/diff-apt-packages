@@ -283,6 +283,22 @@ if ! grep -q "Falling back to cached manifest" "$stderr_log"; then
 fi
 echo "PASS"
 
+# ----------------------------------------------------
+# Test 7: Installed Manifest Output (-i / --installed-manifest)
+# ----------------------------------------------------
+echo -n "Test 7: Installed manifest output format (-i)... "
+# Set up mock package status data
+printf "installed\tpackage-x\t2.5-1\nconfig-files\tpackage-y\t1.0\n" > "$MOCK_DPKG_QUERY_DATA"
+
+installed_manifest_out="${TEST_WORK_DIR}/installed_manifest_output"
+bash "$SCRIPT" -i > "$installed_manifest_out"
+
+# Verify output contains package-x and version, but not package-y (config-files)
+expected_content=$(printf "package-x\t2.5-1")
+actual_content=$(cat "$installed_manifest_out")
+assert_equals "$expected_content" "$actual_content" "Installed manifest output format"
+echo "PASS"
+
 echo "========================================"
 echo "All regression tests PASSED successfully!"
 echo "========================================"

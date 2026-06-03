@@ -51,6 +51,8 @@ Options:
   -d, --default-file PATH  Use a local manifest file instead of downloading
   -o, --output-dir PATH    Save raw package lists and differences to this directory
   -w, --width WIDTH        Column width for interactive layout (Default: 35)
+  -i, --installed-manifest Output currently installed packages in manifest format
+                           (Package\tVersion) to stdout and exit
   -a, --show-added         Print list of added packages to stdout
   -r, --show-removed       Print list of removed packages to stdout
   -k, --keep-versions      Do not ignore version numbers in package names (e.g. treat
@@ -76,6 +78,7 @@ MODE="auto"
 LOCAL_MANIFEST=""
 OUTPUT_DIR=""
 COLUMN_WIDTH=35
+DUMP_MANIFEST=false
 SHOW_ADDED=false
 SHOW_REMOVED=false
 KEEP_VERSIONS=false
@@ -104,6 +107,10 @@ while [[ $# -gt 0 ]]; do
                 exit 1
             fi
             shift 2
+            ;;
+        -i|--installed-manifest)
+            DUMP_MANIFEST=true
+            shift 1
             ;;
         -a|--show-added)
             SHOW_ADDED=true
@@ -139,6 +146,11 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+if [ "$DUMP_MANIFEST" = true ]; then
+    dpkg-query -W -f='${db:Status-Status}\t${Package}\t${Version}\n' | tr -d '\r' | grep -vE '^(not-installed|config-files)[[:space:]]' | cut -f2-
+    exit 0
+fi
 
 # Detect environment: desktop, wsl, cloud, server
 detect_environment() {

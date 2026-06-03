@@ -7,6 +7,7 @@ diff-apt-packages \- compare currently installed APT packages with default Ubunt
 [\fB\-d\fR \fIPATH\fR]
 [\fB\-o\fR \fIPATH\fR]
 [\fB\-w\fR \fIWIDTH\fR]
+[\fB\-i\fR]
 [\fB\-a\fR]
 [\fB\-r\fR]
 [\fB\-k\fR]
@@ -38,6 +39,9 @@ Save the parsed package lists and differences (\fIdefault-packages.txt\fR, \fIin
 .TP
 .BI \-w " WIDTH" ", \-\-width " WIDTH
 Set the column width for truncation in the interactive console layout. Must be an integer of at least 5. Default is 35.
+.TP
+.B \-i\fR, \fB\-\-installed-manifest
+Output the currently installed packages in standard Ubuntu manifest format (tab-separated Package and Version) to standard output and exit.
 .TP
 .B \-a\fR, \fB\-\-show-added
 Print the list of added packages to standard output.
@@ -82,6 +86,18 @@ Force wsl mode manifest download and output raw files to a directory:
 .PP
 .RS
 .B diff-apt-packages.sh \-m wsl \-o /tmp/wsl-audit
+.RE
+.PP
+Dump currently installed packages to a local manifest file before an upgrade:
+.PP
+.RS
+.B diff-apt-packages.sh \-i > pre-upgrade.manifest
+.RE
+.PP
+Compare packages after the upgrade against the saved manifest:
+.PP
+.RS
+.B diff-apt-packages.sh \-d pre-upgrade.manifest
 .RE
 .SH FILES
 .I ~/.cache/diff-apt-packages/

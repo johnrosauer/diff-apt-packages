@@ -84,6 +84,16 @@ Adjust the column width of the interactive explorer layout to suit your terminal
 diff-apt-packages -w 50
 ```
 
+### 6. Create a Pre-Upgrade Manifest Backup
+Generate a snapshot of currently installed packages in the standard Ubuntu manifest format:
+```bash
+diff-apt-packages -i > pre-upgrade.manifest
+```
+After performing a system upgrade, you can perform a custom audit of the upgrade's additions and removals using this snapshot:
+```bash
+diff-apt-packages -d pre-upgrade.manifest
+```
+
 ---
 
 ## CLI Options
@@ -99,6 +109,8 @@ Options:
   -d, --default-file PATH  Use a local manifest file instead of downloading
   -o, --output-dir PATH    Save raw package lists and differences to this directory
   -w, --width WIDTH        Column width for interactive layout (Default: 35)
+  -i, --installed-manifest Output currently installed packages in manifest format
+                           (Package\tVersion) to stdout and exit
   -a, --show-added         Print list of added packages to stdout
   -r, --show-removed       Print list of removed packages to stdout
   -k, --keep-versions      Do not ignore version numbers in package names (e.g. treat
