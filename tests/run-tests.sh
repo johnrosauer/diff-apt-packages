@@ -118,29 +118,9 @@ fi
 echo "PASS"
 
 # ----------------------------------------------------
-# Test 2: Carriage Return (\r) Handling
+# Test 2: 'rc' Status Package Filtering
 # ----------------------------------------------------
-echo -n "Test 2: Carriage return (\\r / CRLF) handling... "
-# Create manifest with CRLF
-printf "package-a\tinstall\r\npackage-b\tinstall\r\n" > "${TEST_WORK_DIR}/manifest_crlf"
-# Create installed packages with CRLF
-printf "installed package-a\r\ninstalled package-b\r\n" > "$MOCK_DPKG_QUERY_DATA"
-touch "$MOCK_DPKG_QUERY_PACKAGES"
-
-# Run diff-apt-packages with the CRLF manifest
-# Should find 0 added and 0 removed since they match
-out_dir="${TEST_WORK_DIR}/out_crlf"
-bash "$SCRIPT" -d "${TEST_WORK_DIR}/manifest_crlf" -o "$out_dir" -y
-
-# Verify files are empty (no differences)
-assert_equals "0" "$(wc -l < "${out_dir}/added-packages.txt" | tr -d ' ')" "Added list should be empty"
-assert_equals "0" "$(wc -l < "${out_dir}/removed-packages.txt" | tr -d ' ')" "Removed list should be empty"
-echo "PASS"
-
-# ----------------------------------------------------
-# Test 3: 'rc' Status Package Filtering
-# ----------------------------------------------------
-echo -n "Test 3: 'rc' (removed but config remains) status filtering... "
+echo -n "Test 2: 'rc' (removed but config remains) status filtering... "
 # Manifest contains package-a and package-b
 printf "package-a\tinstall\npackage-b\tinstall\n" > "${TEST_WORK_DIR}/manifest_rc"
 # Installed packages: package-a is installed, package-b is config-files (rc)
@@ -158,9 +138,9 @@ assert_equals "package-a" "$(cat "${out_dir}/installed-packages.txt")" "package-
 echo "PASS"
 
 # ----------------------------------------------------
-# Test 4: Collision Omission / Unique Sorting
+# Test 3: Collision Omission / Unique Sorting
 # ----------------------------------------------------
-echo -n "Test 4: Collision safety (gcc-14 and gcc-15)... "
+echo -n "Test 3: Collision safety (gcc-14 and gcc-15)... "
 # Both gcc-14 and gcc-15 are in manifest and installed.
 # Version-insensitive mapping normalises them both to gcc-VERSION.
 # We must ensure both are preserved and match properly without omission.
@@ -180,9 +160,9 @@ assert_equals "2" "$(wc -l < "${out_dir}/installed-packages.txt" | tr -d ' ')" "
 echo "PASS"
 
 # ----------------------------------------------------
-# Test 4b: Keep-versions (-k / --keep-versions)
+# Test 4: Keep-versions (-k / --keep-versions)
 # ----------------------------------------------------
-echo -n "Test 4b: Keep-versions exact matching (-k)... "
+echo -n "Test 4: Keep-versions exact matching (-k)... "
 # Manifest contains only gcc-14, but gcc-15 is installed.
 # Without -k, they match (since they normalize to gcc-VERSION).
 # With -k, they do not match: gcc-14 is removed, gcc-15 is added.

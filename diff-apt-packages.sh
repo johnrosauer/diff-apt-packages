@@ -148,7 +148,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [ "$DUMP_MANIFEST" = true ]; then
-    dpkg-query -W -f='${db:Status-Status}\t${Package}\t${Version}\n' | tr -d '\r' | grep -vE '^(not-installed|config-files)[[:space:]]' | cut -f2-
+    dpkg-query -W -f='${db:Status-Status}\t${Package}\t${Version}\n' | grep -vE '^(not-installed|config-files)[[:space:]]' | cut -f2-
     exit 0
 fi
 
@@ -309,11 +309,11 @@ if [ -n "$LOCAL_MANIFEST" ]; then
     fi
     
     # Parse local manifest file (supports gzipped files)
+    reader="cat"
     if [[ "$LOCAL_MANIFEST" =~ \.gz$ ]]; then
-        gzip -dc "$LOCAL_MANIFEST" | tr -d '\r' | awk '{print $1}' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
-    else
-        tr -d '\r' < "$LOCAL_MANIFEST" | awk '{print $1}' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
+        reader="gzip -dc"
     fi
+    $reader "$LOCAL_MANIFEST" | awk '{print $1}' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
     DEFAULT_SOURCE="Local file: $LOCAL_MANIFEST"
 fi
 
@@ -391,12 +391,12 @@ if [ -z "$DEFAULT_SOURCE" ]; then
         fi
     fi
 
-    tr -d '\r' < "${TMP_DIR}/manifest.raw" | awk '{print $1}' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
+    awk '{print $1}' "${TMP_DIR}/manifest.raw" | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
 fi
 
 # Step 3: Extract current packages
 CURRENT_LIST_FILE="${TMP_DIR}/current.txt"
-dpkg-query -W -f='${db:Status-Status} ${Package}\n' | tr -d '\r' | grep -vE '^(not-installed|config-files) ' | cut -d' ' -f2 | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$CURRENT_LIST_FILE"
+dpkg-query -W -f='${db:Status-Status} ${Package}\n' | grep -vE '^(not-installed|config-files) ' | cut -d' ' -f2 | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$CURRENT_LIST_FILE"
 
 # Step 4: Compare lists
 ADDED_FILE="${TMP_DIR}/added.txt"
@@ -421,12 +421,12 @@ else
         local norm_tmp="${TMP_DIR}/norm_${suffix}.txt"
         
         # Replace versions using sed
-        tr -d '\r' < "$src" | sed -E '
+        sed -E '
             s/-[0-9]+\.[0-9]+\.[0-9]+-[0-9]+-generic\b/-VERSION-generic/g;
             s/-[0-9]+\.[0-9]+\.[0-9]+-[0-9]+\b/-VERSION/g;
             s/-[0-9]+(\.[0-9]+)?-(dev|generic|common|base|doc|docs|dbg|utils|libs)\b/-VERSION-\2/g;
             s/-[0-9]+(\.[0-9]+)?$/-VERSION/g
-        ' > "$norm_tmp"
+        ' "$src" > "$norm_tmp"
         
         paste -d' ' "$norm_tmp" "$src" | LC_ALL=C sort -k1,1 > "$dest_mapped"
         awk '{print $1}' "$dest_mapped" | LC_ALL=C sort -u > "$dest_names"
