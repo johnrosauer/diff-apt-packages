@@ -32,6 +32,21 @@ cleanup() {
 }
 trap cleanup EXIT
 
+# Helper for locale-independent sorting
+c_sort() {
+    LC_ALL=C command sort "$@"
+}
+
+# Helper for locale-independent comm
+c_comm() {
+    LC_ALL=C command comm "$@"
+}
+
+# Helper for locale-independent join
+c_join() {
+    LC_ALL=C command join "$@"
+}
+
 # Version resolution with build-time substitution and runtime Git fallback
 SCRIPT_VERSION="@VERSION@"
 if [ "$SCRIPT_VERSION" = "@"VERSION"@" ]; then
@@ -335,7 +350,7 @@ if [ -n "$LOCAL_MANIFEST" ]; then
     if [[ "$LOCAL_MANIFEST" =~ \.gz$ ]]; then
         reader="gzip -dc"
     fi
-    $reader "$LOCAL_MANIFEST" | awk '{print $1}' | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
+    $reader "$LOCAL_MANIFEST" | awk '{print $1}' | sed -E 's/:[a-zA-Z0-9_-]+$//' | c_sort -u > "$DEFAULT_LIST_FILE"
     DEFAULT_SOURCE="Local file: $LOCAL_MANIFEST"
 fi
 
@@ -413,12 +428,12 @@ if [ -z "$DEFAULT_SOURCE" ]; then
         fi
     fi
 
-    awk '{print $1}' "${TMP_DIR}/manifest.raw" | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$DEFAULT_LIST_FILE"
+    awk '{print $1}' "${TMP_DIR}/manifest.raw" | sed -E 's/:[a-zA-Z0-9_-]+$//' | c_sort -u > "$DEFAULT_LIST_FILE"
 fi
 
 # Step 3: Extract current packages
 CURRENT_LIST_FILE="${TMP_DIR}/current.txt"
-dpkg-query -W -f='${db:Status-Status} ${Package}\n' | grep -vE '^(not-installed|config-files) ' | cut -d' ' -f2 | sed -E 's/:[a-zA-Z0-9_-]+$//' | LC_ALL=C sort -u > "$CURRENT_LIST_FILE"
+dpkg-query -W -f='${db:Status-Status} ${Package}\n' | grep -vE '^(not-installed|config-files) ' | cut -d' ' -f2 | sed -E 's/:[a-zA-Z0-9_-]+$//' | c_sort -u > "$CURRENT_LIST_FILE"
 
 # Step 4: Compare lists
 ADDED_FILE="${TMP_DIR}/added.txt"
@@ -426,8 +441,8 @@ REMOVED_FILE="${TMP_DIR}/removed.txt"
 
 if [ "$KEEP_VERSIONS" = true ]; then
     # Simple architecture-stripped comparison (exact package names)
-    LC_ALL=C comm -23 "$CURRENT_LIST_FILE" "$DEFAULT_LIST_FILE" > "$ADDED_FILE"
-    LC_ALL=C comm -13 "$CURRENT_LIST_FILE" "$DEFAULT_LIST_FILE" > "$REMOVED_FILE"
+    c_comm -23 "$CURRENT_LIST_FILE" "$DEFAULT_LIST_FILE" > "$ADDED_FILE"
+    c_comm -13 "$CURRENT_LIST_FILE" "$DEFAULT_LIST_FILE" > "$REMOVED_FILE"
 else
     # Version-insensitive comparison:
     # 1. Normalize version numbers to -VERSION in temp files
@@ -450,20 +465,20 @@ else
             s/-[0-9]+(\.[0-9]+)?$/-VERSION/g
         ' "$src" > "$norm_tmp"
         
-        paste -d' ' "$norm_tmp" "$src" | LC_ALL=C sort -k1,1 > "$dest_mapped"
-        awk '{print $1}' "$dest_mapped" | LC_ALL=C sort -u > "$dest_names"
+        paste -d' ' "$norm_tmp" "$src" | c_sort -k1,1 > "$dest_mapped"
+        awk '{print $1}' "$dest_mapped" | c_sort -u > "$dest_names"
     }
     
     normalize_and_map "$DEFAULT_LIST_FILE" "${TMP_DIR}/def_mapped.txt" "${TMP_DIR}/def_names.txt"
     normalize_and_map "$CURRENT_LIST_FILE" "${TMP_DIR}/cur_mapped.txt" "${TMP_DIR}/cur_names.txt"
     
     # Compare normalized names
-    LC_ALL=C comm -23 "${TMP_DIR}/cur_names.txt" "${TMP_DIR}/def_names.txt" > "${TMP_DIR}/add_names.txt"
-    LC_ALL=C comm -13 "${TMP_DIR}/cur_names.txt" "${TMP_DIR}/def_names.txt" > "${TMP_DIR}/rem_names.txt"
+    c_comm -23 "${TMP_DIR}/cur_names.txt" "${TMP_DIR}/def_names.txt" > "${TMP_DIR}/add_names.txt"
+    c_comm -13 "${TMP_DIR}/cur_names.txt" "${TMP_DIR}/def_names.txt" > "${TMP_DIR}/rem_names.txt"
     
     # Map back to original package names using join
-    LC_ALL=C join -o 1.2 "${TMP_DIR}/cur_mapped.txt" "${TMP_DIR}/add_names.txt" | LC_ALL=C sort -u > "$ADDED_FILE"
-    LC_ALL=C join -o 1.2 "${TMP_DIR}/def_mapped.txt" "${TMP_DIR}/rem_names.txt" | LC_ALL=C sort -u > "$REMOVED_FILE"
+    c_join -o 1.2 "${TMP_DIR}/cur_mapped.txt" "${TMP_DIR}/add_names.txt" | c_sort -u > "$ADDED_FILE"
+    c_join -o 1.2 "${TMP_DIR}/def_mapped.txt" "${TMP_DIR}/rem_names.txt" | c_sort -u > "$REMOVED_FILE"
 fi
 
 # Count statistics
