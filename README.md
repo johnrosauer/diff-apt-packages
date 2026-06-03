@@ -133,5 +133,5 @@ Options:
 
 ## Licence
 
-This project is licensed under the MIT Licence - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT Licence - see the [LICENCE](LICENCE) file for details.
 

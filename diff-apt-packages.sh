@@ -106,7 +106,7 @@ Description:
   
   By default, it will detect the Ubuntu codename, fetch the official manifest
   from the Ubuntu releases or cloud-images servers, auto-detect the installation
-  flavor (Desktop, Server, WSL, or Cloud Image), and compute the diff.
+  flavour (Desktop, Server, WSL, or Cloud Image), and compute the diff.
 EOF
     exit 0
 }
