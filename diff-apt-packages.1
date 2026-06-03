@@ -2,7 +2,7 @@
 .SH NAME
 diff-apt-packages \- compare currently installed APT packages with default Ubuntu ones
 .SH SYNOPSIS
-.B diff-apt-packages.sh
+.B diff-apt-packages
 [\fB\-m\fR \fIMODE\fR]
 [\fB\-d\fR \fIPATH\fR]
 [\fB\-o\fR \fIPATH\fR]
@@ -17,7 +17,7 @@ diff-apt-packages \- compare currently installed APT packages with default Ubunt
 [\fB\-v\fR]
 [\fB\-h\fR]
 .SH DESCRIPTION
-.B diff-apt-packages.sh
+.B diff-apt-packages
 compares the set of packages currently installed on an Ubuntu system against the set of packages that come pre-installed by default for that release.
 .PP
 The tool determines the original package set by checking the following sources in order:
@@ -71,37 +71,37 @@ Show usage help summary and exit.
 Show package difference summary and prompt for detail listings:
 .PP
 .RS
-.B diff-apt-packages.sh
+.B diff-apt-packages
 .RE
 .PP
 Quietly list added packages and save them to a text file:
 .PP
 .RS
-.B diff-apt-packages.sh \-q \-a > added_packages.txt
+.B diff-apt-packages \-q \-a > added_packages.txt
 .RE
 .PP
 Audit package difference comparing exact package version names:
 .PP
 .RS
-.B diff-apt-packages.sh \-k
+.B diff-apt-packages \-k
 .RE
 .PP
 Force wsl mode manifest download and output raw files to a directory:
 .PP
 .RS
-.B diff-apt-packages.sh \-m wsl \-o /tmp/wsl-audit
+.B diff-apt-packages \-m wsl \-o /tmp/wsl-audit
 .RE
 .PP
 Dump currently installed packages to a local manifest file before an upgrade:
 .PP
 .RS
-.B diff-apt-packages.sh \-i > pre-upgrade.manifest
+.B diff-apt-packages \-i > pre-upgrade.manifest
 .RE
 .PP
 Compare packages after the upgrade against the saved manifest:
 .PP
 .RS
-.B diff-apt-packages.sh \-d pre-upgrade.manifest
+.B diff-apt-packages \-d pre-upgrade.manifest
 .RE
 .SH FILES
 .I ~/.cache/diff-apt-packages/
