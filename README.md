@@ -111,6 +111,7 @@ Options:
   -w, --width WIDTH        Column width for interactive layout (Default: 35)
   -i, --installed-manifest Output currently installed packages in manifest format
                            (Package\tVersion) to stdout and exit
+  -c, --no-cache           Do not read from cached manifest (force download)
   -a, --show-added         Print list of added packages to stdout
   -r, --show-removed       Print list of removed packages to stdout
   -k, --keep-versions      Do not ignore version numbers in package names (e.g. treat

@@ -247,6 +247,10 @@ printf "package-cached-2\tinstall\n" > "$MOCK_CURL_MANIFEST_DATA"
 bash "$SCRIPT" -m server -y > /dev/null
 assert_equals "package-cached-1	install" "$(cat "$cache_file")" "Cache should remain unchanged (fresh cache used)"
 
+# 2b. Run with -c / --no-cache: should bypass cache and download fresh manifest
+bash "$SCRIPT" -m server -c -y > /dev/null
+assert_equals "package-cached-2	install" "$(cat "$cache_file")" "Cache should be updated with new downloaded manifest"
+
 # 3. Third run: stale cache fallback on network failure
 # Touch cache to be 2 days old
 touch -d "2 days ago" "$cache_file"

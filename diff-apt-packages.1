@@ -8,6 +8,7 @@ diff-apt-packages \- compare currently installed APT packages with default Ubunt
 [\fB\-o\fR \fIPATH\fR]
 [\fB\-w\fR \fIWIDTH\fR]
 [\fB\-i\fR]
+[\fB\-c\fR]
 [\fB\-a\fR]
 [\fB\-r\fR]
 [\fB\-k\fR]
@@ -42,6 +43,9 @@ Set the column width for truncation in the interactive console layout. Must be a
 .TP
 .B \-i\fR, \fB\-\-installed-manifest
 Output the currently installed packages in standard Ubuntu manifest format (tab-separated Package and Version) to standard output and exit.
+.TP
+.B \-c\fR, \fB\-\-no-cache
+Do not read from cached manifests. Forces downloading a fresh manifest from the online Ubuntu mirrors.
 .TP
 .B \-a\fR, \fB\-\-show-added
 Print the list of added packages to standard output.
