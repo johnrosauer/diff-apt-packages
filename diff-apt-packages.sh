@@ -91,18 +91,34 @@ NON_INTERACTIVE=false
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -m|--mode)
+            if [[ $# -lt 2 ]]; then
+                echo -e "${RED}Error: Option '$1' requires an argument.${NC}" >&2
+                exit 1
+            fi
             MODE="$2"
             shift 2
             ;;
         -d|--default-file)
+            if [[ $# -lt 2 ]]; then
+                echo -e "${RED}Error: Option '$1' requires an argument.${NC}" >&2
+                exit 1
+            fi
             LOCAL_MANIFEST="$2"
             shift 2
             ;;
         -o|--output-dir)
+            if [[ $# -lt 2 ]]; then
+                echo -e "${RED}Error: Option '$1' requires an argument.${NC}" >&2
+                exit 1
+            fi
             OUTPUT_DIR="$2"
             shift 2
             ;;
         -w|--width)
+            if [[ $# -lt 2 ]]; then
+                echo -e "${RED}Error: Option '$1' requires an argument.${NC}" >&2
+                exit 1
+            fi
             COLUMN_WIDTH="$2"
             if ! [[ "$COLUMN_WIDTH" =~ ^[0-9]+$ ]] || [ "$COLUMN_WIDTH" -lt 5 ]; then
                 echo -e "${RED}Error: Width must be an integer of at least 5.${NC}" >&2

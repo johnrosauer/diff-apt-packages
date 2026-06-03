@@ -283,6 +283,23 @@ actual_content=$(cat "$installed_manifest_out")
 assert_equals "$expected_content" "$actual_content" "Installed manifest output format"
 echo "PASS"
 
+# ----------------------------------------------------
+# Test 8: Missing Option Arguments
+# ----------------------------------------------------
+echo -n "Test 8: Missing option arguments graceful failures... "
+for opt in "-m" "--mode" "-d" "--default-file" "-o" "--output-dir" "-w" "--width"; do
+    err_out="${TEST_WORK_DIR}/err_${opt//-/}"
+    if bash "$SCRIPT" "$opt" 2> "$err_out"; then
+        echo "FAIL: Expected option $opt with missing argument to fail with non-zero code" >&2
+        exit 1
+    fi
+    if ! grep -q "Option '$opt' requires an argument" "$err_out"; then
+        echo "FAIL: Error output for $opt did not contain expected message. Content: $(cat "$err_out")" >&2
+        exit 1
+    fi
+done
+echo "PASS"
+
 echo "========================================"
 echo "All regression tests PASSED successfully!"
 echo "========================================"
