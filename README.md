@@ -45,10 +45,30 @@ make deb
 sudo apt install ./diff-apt-packages_*.deb
 ```
 
-To remove the installation:
+Or you can build and install a Snap package:
+
 ```bash
-sudo make uninstall
+# Build the snap package
+make snap
+
+# Install the generated snap package (requires classic confinement)
+sudo snap install --classic ./diff-apt-packages_*.snap
 ```
+
+To remove the installation:
+
+- If installed via `make install`:
+  ```bash
+  sudo make uninstall
+  ```
+- If installed via `.deb` package:
+  ```bash
+  sudo apt remove diff-apt-packages
+  ```
+- If installed via snap package:
+  ```bash
+  sudo snap remove diff-apt-packages
+  ```
 
 ---
 
