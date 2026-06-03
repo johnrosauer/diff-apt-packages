@@ -13,3 +13,9 @@ removed-packages.txt
 
 # Debian packages
 *.deb
+
+# Snap packages and build directories
+*.snap
+/parts/
+/stage/
+/prime/

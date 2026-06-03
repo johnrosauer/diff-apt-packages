@@ -1,0 +1,36 @@
+name: diff-apt-packages
+title: Diff APT Packages
+base: core22
+adopt-info: diff-apt-packages
+summary: Compare installed APT packages with default Ubuntu ones
+description: |
+  Compare the set of packages currently installed on an Ubuntu system
+  against the set of packages that come pre-installed by default
+  for that release version.
+license: MIT
+contact: john.rosauer@gmail.com
+
+grade: stable
+confinement: classic
+
+parts:
+  diff-apt-packages:
+    plugin: dump
+    source: .
+    organize:
+      diff-apt-packages.sh: bin/diff-apt-packages
+      diff-apt-packages.1: share/man/man1/diff-apt-packages.1
+      diff-apt-packages-completion.bash: etc/bash_completion.d/diff-apt-packages
+    stage:
+      - bin/diff-apt-packages
+      - share/man/man1/diff-apt-packages.1
+      - etc/bash_completion.d/diff-apt-packages
+    override-pull: |
+      craftctl default
+      VERSION=$(git describe --tags --always --dirty 2>/dev/null || echo "dev")
+      VERSION_CLEAN=$(echo "$VERSION" | sed -E 's/^v//')
+      craftctl set version="$VERSION_CLEAN"
+
+apps:
+  diff-apt-packages:
+    command: bin/diff-apt-packages

@@ -6,7 +6,7 @@ BASHCOMPDIR = /etc/bash_completion.d
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 DEB_VERSION = $(shell echo "$(VERSION)" | sed -E 's/^v//; s/^([^0-9])/0.0.0-\1/')
 
-.PHONY: install uninstall deb test
+.PHONY: install uninstall deb test snap clean
 
 test:
 	chmod +x tests/run-tests.sh
@@ -52,3 +52,10 @@ deb:
 	dpkg-deb --root-owner-group --build $(DEB_DIR) .
 	# Cleanup
 	rm -rf $(DEB_DIR)
+
+snap:
+	snapcraft pack --destructive-mode
+
+clean:
+	rm -rf parts/ stage/ prime/
+	rm -f *.snap *.deb
