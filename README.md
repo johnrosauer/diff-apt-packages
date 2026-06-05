@@ -153,5 +153,5 @@ Options:
 
 ## Licence
 
-This project is licensed under the MIT Licence - see the [LICENCE](LICENCE) file for details.
+This project is licensed under the GNU GPL 3.0 - see the [LICENCE](LICENCE) file for details.
 
