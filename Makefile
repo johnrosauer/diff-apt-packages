@@ -57,5 +57,5 @@ snap:
 	snapcraft pack --destructive-mode
 
 clean:
-	rm -rf parts/ stage/ prime/
+	rm -rf parts/ stage/ prime/ overlay/
 	rm -f *.snap *.deb
