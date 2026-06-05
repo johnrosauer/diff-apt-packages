@@ -9,6 +9,7 @@ description: |
   for that release version.
 license: GPL-3.0
 contact: john.rosauer@gmail.com
+source-code: https://github.com/johnrosauer/diff-apt-packages
 
 grade: stable
 confinement: classic
