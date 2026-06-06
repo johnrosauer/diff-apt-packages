@@ -45,11 +45,11 @@ make deb
 sudo apt install ./diff-apt-packages_*.deb
 ```
 
-Or you can build and install a Snap package:
+Or you can build and install a Snap package. By default, the `Makefile` builds the snap directly on the host using `--destructive-mode`. If you prefer to build it using a virtual machine setup (e.g. Multipass or LXD), you can override the `SNAPCRAFT_FLAGS` variable:
 
 ```bash
-# Build the snap package
-make snap
+# Build the snap package using a VM setup
+make snap SNAPCRAFT_FLAGS=""
 
 # Install the generated snap package (requires classic confinement)
 sudo snap install --classic ./diff-apt-packages_*.snap

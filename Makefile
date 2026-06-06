@@ -6,6 +6,9 @@ BASHCOMPDIR = /etc/bash_completion.d
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
 DEB_VERSION = $(shell echo "$(VERSION)" | sed -E 's/^v//; s/^([^0-9])/0.0.0-\1/')
 
+# Snapcraft flags (defaults to host-based destructive mode; set to empty or custom flags for VM/LXD build)
+SNAPCRAFT_FLAGS ?= --destructive-mode
+
 .PHONY: install uninstall deb test snap clean
 
 test:
@@ -54,7 +57,7 @@ deb:
 	rm -rf $(DEB_DIR)
 
 snap:
-	snapcraft pack --destructive-mode
+	snapcraft pack $(SNAPCRAFT_FLAGS)
 
 clean:
 	rm -rf parts/ stage/ prime/ overlay/
