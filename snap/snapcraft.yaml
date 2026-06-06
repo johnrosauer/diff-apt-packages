@@ -13,6 +13,9 @@ source-code: https://github.com/johnrosauer/diff-apt-packages
 
 grade: stable
 confinement: classic
+architectures:
+  - build-on: [amd64]
+    build-for: [all]
 
 parts:
   diff-apt-packages:
