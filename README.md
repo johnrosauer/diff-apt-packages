@@ -8,7 +8,7 @@ It helps system administrators and developers audit systems by identifying preci
 
 - **Automated Manifest Resolution:**
   - Automatically locates and downloads the official release or cloud manifest from Canonical mirrors based on your detected Ubuntu version, codename, architecture, and installation mode.
-  - Caches downloaded manifests locally in `~/.cache/diff-apt-packages/` for 24 hours to avoid network delays, with automatic fallback to stale cache files in case of network timeouts or offline mode.
+  - Caches downloaded manifests locally in `~/.cache/diff-apt-packages/` for 24 hours to avoid network delays, with automatic fallback to stale cache files in case of network timeouts or offline mode. Supports manual cache updates using the `-u`/`--update` option.
 - **Smart Mode Auto-Detection:**
   - Auto-detects whether the machine is running a **Desktop** environment, a standard **Server**, a **WSL** (Windows Subsystem for Linux) instance, or a virtualised **Cloud Image** minimal system.
 - **Version-Insensitive Normalisation:**
@@ -114,6 +114,12 @@ After performing a system upgrade, you can perform a custom audit of the upgrade
 diff-apt-packages -d pre-upgrade.manifest
 ```
 
+### 7. Update Cached Manifest
+Force-download the latest manifest online and update the cache without performing a package audit:
+```bash
+diff-apt-packages -u
+```
+
 ---
 
 ## CLI Options
@@ -132,6 +138,7 @@ Options:
   -i, --installed-manifest Output currently installed packages in manifest format
                            (Package\tVersion) to stdout and exit
   -c, --no-cache           Do not read from cached manifest (force download)
+  -u, --update             Update the cached manifest online and exit
   -a, --show-added         Print list of added packages to stdout
   -r, --show-removed       Print list of removed packages to stdout
   -k, --keep-versions      Do not ignore version numbers in package names (e.g. treat

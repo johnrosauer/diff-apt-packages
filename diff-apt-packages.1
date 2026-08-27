@@ -9,6 +9,7 @@ diff-apt-packages \- compare currently installed APT packages with default Ubunt
 [\fB\-w\fR \fIWIDTH\fR]
 [\fB\-i\fR]
 [\fB\-c\fR]
+[\fB\-u\fR]
 [\fB\-a\fR]
 [\fB\-r\fR]
 [\fB\-k\fR]
@@ -46,6 +47,9 @@ Output the currently installed packages in standard Ubuntu manifest format (tab-
 .TP
 .B \-c\fR, \fB\-\-no-cache
 Do not read from cached manifests. Forces downloading a fresh manifest from the online Ubuntu mirrors.
+.TP
+.B \-u\fR, \fB\-\-update
+Update the cached manifest online and exit.
 .TP
 .B \-a\fR, \fB\-\-show-added
 Print the list of added packages to standard output.

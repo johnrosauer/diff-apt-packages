@@ -314,6 +314,34 @@ for opt in "-m" "--mode" "-d" "--default-file" "-o" "--output-dir" "-w" "--width
 done
 echo "PASS"
 
+# ----------------------------------------------------
+# Test 9: Update Cached Manifest (-u / --update)
+# ----------------------------------------------------
+echo -n "Test 9: Update cached manifest online (-u)... "
+unset MOCK_CURL_FAIL || true
+export XDG_CACHE_HOME="${TEST_WORK_DIR}/cache_update"
+rm -rf "$XDG_CACHE_HOME"
+
+# Setup mock curl manifest data
+printf "package-updated-1\tinstall\n" > "$MOCK_CURL_MANIFEST_DATA"
+
+# Run update command: it should download, write to cache, and exit 0
+bash "$SCRIPT" -m server -u -y > /dev/null
+
+cache_file="${XDG_CACHE_HOME}/diff-apt-packages/resolute-server-amd64.manifest"
+if [ ! -f "$cache_file" ]; then
+    echo "FAIL: Manifest cache file was not created by -u" >&2
+    exit 1
+fi
+assert_equals "package-updated-1	install" "$(cat "$cache_file")" "Cached manifest updated content"
+
+# Verify that specifying -d with -u fails
+if bash "$SCRIPT" -u -d "${TEST_WORK_DIR}/manifest_rc" -y 2>/dev/null; then
+    echo "FAIL: Accepted invalid option combination -u and -d" >&2
+    exit 1
+fi
+echo "PASS"
+
 echo "========================================"
 echo "All regression tests PASSED successfully!"
 echo "========================================"

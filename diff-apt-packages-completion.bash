@@ -22,7 +22,7 @@ _diff_apt_packages() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     
-    opts="-m --mode -d --default-file -o --output-dir -w --width -i --installed-manifest -c --no-cache -a --show-added -r --show-removed -k --keep-versions -q --quiet -y --non-interactive -v --version -h --help"
+    opts="-m --mode -d --default-file -o --output-dir -w --width -i --installed-manifest -c --no-cache -u --update -a --show-added -r --show-removed -k --keep-versions -q --quiet -y --non-interactive -v --version -h --help"
     mode_opts="desktop server wsl cloud auto"
     
     case "$prev" in

@@ -92,6 +92,7 @@ Options:
   -i, --installed-manifest Output currently installed packages in manifest format
                            (Package\tVersion) to stdout and exit
   -c, --no-cache           Do not read from cached manifest (force download)
+  -u, --update             Update the cached manifest online and exit
   -a, --show-added         Print list of added packages to stdout
   -r, --show-removed       Print list of removed packages to stdout
   -k, --keep-versions      Do not ignore version numbers in package names (e.g. treat
@@ -119,6 +120,7 @@ OUTPUT_DIR=""
 COLUMN_WIDTH=35
 DUMP_MANIFEST=false
 NO_CACHE=false
+UPDATE_CACHE=false
 SHOW_ADDED=false
 SHOW_REMOVED=false
 KEEP_VERSIONS=false
@@ -160,6 +162,10 @@ while [[ $# -gt 0 ]]; do
             NO_CACHE=true
             shift 1
             ;;
+        -u|--update)
+            UPDATE_CACHE=true
+            shift 1
+            ;;
         -a|--show-added)
             SHOW_ADDED=true
             shift 1
@@ -198,6 +204,14 @@ done
 if [ "$DUMP_MANIFEST" = true ]; then
     dpkg-query -W -f='${db:Status-Status}\t${Package}\t${Version}\n' | grep -vE '^(not-installed|config-files)[[:space:]]' | cut -f2-
     exit 0
+fi
+
+if [ "$UPDATE_CACHE" = true ]; then
+    if [ -n "$LOCAL_MANIFEST" ]; then
+        echo -e "${RED}Error: Cannot update cache when using a local manifest file (-d/--default-file).${NC}" >&2
+        exit 1
+    fi
+    NO_CACHE=true
 fi
 
 # Detect environment: desktop, wsl, cloud, server
@@ -402,6 +416,10 @@ if [ -z "$DEFAULT_SOURCE" ]; then
         MANIFEST_URL=$(find_online_manifest_url "$VERSION" "$CODENAME" "$DETECTED_MODE" "$ARCH")
 
         if [ -z "$MANIFEST_URL" ]; then
+            if [ "$UPDATE_CACHE" = true ]; then
+                echo -e "${RED}Error: Could not locate online manifest URL to update cache.${NC}" >&2
+                exit 1
+            fi
             if ! fallback_to_cache "Could not locate online manifest URL"; then
                 echo -e "${RED}Error: Could not locate a default manifest file for Ubuntu $VERSION ($CODENAME) / $DETECTED_MODE / $ARCH.${NC}" >&2
                 echo "Please specify a manifest manually using the -d/--default-file option." >&2
@@ -412,6 +430,10 @@ if [ -z "$DEFAULT_SOURCE" ]; then
                 echo -e "${BLUE}Downloading manifest:${NC} ${BOLD}$MANIFEST_URL${NC}" >&2
             fi
             if ! curl -sfL --max-time 30 "$MANIFEST_URL" > "${TMP_DIR}/manifest.raw"; then
+                if [ "$UPDATE_CACHE" = true ]; then
+                    echo -e "${RED}Error: Failed to download manifest from $MANIFEST_URL${NC}" >&2
+                    exit 1
+                fi
                 if ! fallback_to_cache "Download failed"; then
                     echo -e "${RED}Error: Failed to download manifest from $MANIFEST_URL${NC}" >&2
                     exit 1
@@ -421,6 +443,12 @@ if [ -z "$DEFAULT_SOURCE" ]; then
                 mkdir -p "$CACHE_DIR"
                 cp "${TMP_DIR}/manifest.raw" "$CACHE_FILE"
                 DEFAULT_SOURCE="Online manifest ($MANIFEST_URL)"
+                if [ "$UPDATE_CACHE" = true ]; then
+                    if [ "$QUIET" = false ]; then
+                        echo -e "${GREEN}Successfully updated cached manifest:${NC} ${BOLD}$CACHE_FILE${NC}" >&2
+                    fi
+                    exit 0
+                fi
             fi
         fi
     fi
